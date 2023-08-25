@@ -4,6 +4,7 @@ const app = express();
 const Fruit = require("./models/fruit.js");
 const Vegetable = require("./models/vegetable.js");
 const mongoose = require("mongoose");
+const methodOverride = require('method-override')
 
 // CONNECT WITH MONGOOSE
 mongoose.connect(process.env.MONGO_URI, {
@@ -28,7 +29,8 @@ app.use((req, res, next) => {
 });
 //this allows the body of a post request
 app.use(express.urlencoded({ extended: false }));
-
+//method override Lets you use HTTP verbs such as PUT or DELETE in places where the client doesn't support it.
+app.use(methodOverride('_method'))
 //ROUTES
 //index
 app.get("/fruits", async function (req, res) {
@@ -65,6 +67,34 @@ app.get("/fruits/:id", async (req, res) => {
     fruit: oneFruit,
   });
 });
+//EDIT
+app.get('/fruits/:id/edit', async(req, res)=>{
+ const foundFruit = await Fruit.findById(req.params.id)
+    res.render('fruits/Edit', {
+        fruit: foundFruit
+    })
+})
+
+//UPDATE
+app.put('/fruits/:id', async (req, res)=>{
+    //verify if checkbox is clicked
+    req.body.readyToEat ==="on" ? req.body.readyToEat = true : req.body.readyToEat = false;
+    req.body.isItGood ==="on" ? req.body.isItGood = true : req.body.isItGood = false;
+
+    //find the fruit and update by id
+    await Fruit.findByIdAndUpdate(req.params.id, req.body)
+    res.redirect(`/fruits/${req.params.id}`)
+})
+
+//DELETE
+app.delete('/fruits/:id', async (req, res)=>{
+   await Fruit.findByIdAndRemove(req.params.id)
+   res.redirect('/fruits')
+})
+
+
+
+
 
 // Index
 app.get("/vegetable", async function (req, res) {

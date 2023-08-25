@@ -9,7 +9,10 @@ const fruitSchema = new mongoose.Schema({
         type: String, 
         required: true
     },
-    readyToEat: Boolean
+    readyToEat: Boolean,
+
+    isItGood: Boolean
+
 })
 
 const Fruit = mongoose.model('Fruit', fruitSchema)
